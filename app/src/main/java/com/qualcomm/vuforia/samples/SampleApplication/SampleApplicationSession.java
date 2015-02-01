@@ -1,7 +1,9 @@
-/*==============================================================================
- Copyright (c) 2012-2013 Qualcomm Connected Experiences, Inc.
- All Rights Reserved.
- ==============================================================================*/
+/*===============================================================================
+Copyright (c) 2012-2014 Qualcomm Connected Experiences, Inc. All Rights Reserved.
+
+Vuforia is a trademark of QUALCOMM Incorporated, registered in the United States 
+and other countries. Trademarks of QUALCOMM Incorporated are used with permission.
+===============================================================================*/
 
 package com.qualcomm.vuforia.samples.SampleApplication;
 
@@ -34,11 +36,12 @@ public class SampleApplicationSession implements UpdateCallbackInterface
     private static final String LOGTAG = "Vuforia_Sample_Applications";
     
     // Reference to the current activity
-    private Activity m_activity;
-    private SampleApplicationControl m_sessionControl;
+    private Activity mActivity;
+    private SampleApplicationControl mSessionControl;
     
     // Flags
-    private boolean m_started = false;
+    private boolean mStarted = false;
+    private boolean mCameraRunning = false;
     
     // Display size of the device:
     private int mScreenWidth = 0;
@@ -69,7 +72,7 @@ public class SampleApplicationSession implements UpdateCallbackInterface
     
     public SampleApplicationSession(SampleApplicationControl sessionControl)
     {
-        m_sessionControl = sessionControl;
+        mSessionControl = sessionControl;
     }
     
     
@@ -77,14 +80,14 @@ public class SampleApplicationSession implements UpdateCallbackInterface
     public void initAR(Activity activity, int screenOrientation)
     {
         SampleApplicationException vuforiaException = null;
-        m_activity = activity;
+        mActivity = activity;
         
         if ((screenOrientation == ActivityInfo.SCREEN_ORIENTATION_SENSOR)
             && (Build.VERSION.SDK_INT > Build.VERSION_CODES.FROYO))
             screenOrientation = ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR;
         
         // Apply screen orientation
-        m_activity.setRequestedOrientation(screenOrientation);
+        mActivity.setRequestedOrientation(screenOrientation);
         
         updateActivityOrientation();
         
@@ -93,7 +96,7 @@ public class SampleApplicationSession implements UpdateCallbackInterface
         
         // As long as this window is visible to the user, keep the device's
         // screen turned on and bright:
-        m_activity.getWindow().setFlags(
+        mActivity.getWindow().setFlags(
             WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
             WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         
@@ -130,7 +133,7 @@ public class SampleApplicationSession implements UpdateCallbackInterface
         }
         
         if (vuforiaException != null)
-            m_sessionControl.onInitARDone(vuforiaException);
+            mSessionControl.onInitARDone(vuforiaException);
     }
     
     
@@ -138,6 +141,14 @@ public class SampleApplicationSession implements UpdateCallbackInterface
     public void startAR(int camera) throws SampleApplicationException
     {
         String error;
+        if(mCameraRunning)
+        {
+        	error = "Camera already running, unable to open again";
+        	Log.e(LOGTAG, error);
+            throw new SampleApplicationException(
+                SampleApplicationException.CAMERA_INITIALIZATION_FAILURE, error);
+        }
+        
         mCamera = camera;
         if (!CameraDevice.getInstance().init(camera))
         {
@@ -170,7 +181,9 @@ public class SampleApplicationSession implements UpdateCallbackInterface
         
         setProjectionMatrix();
         
-        m_sessionControl.doStartTrackers();
+        mSessionControl.doStartTrackers();
+        
+        mCameraRunning = true;
         
         try
         {
@@ -203,7 +216,7 @@ public class SampleApplicationSession implements UpdateCallbackInterface
         mInitVuforiaTask = null;
         mLoadTrackerTask = null;
         
-        m_started = false;
+        mStarted = false;
         
         stopCamera();
         
@@ -216,10 +229,10 @@ public class SampleApplicationSession implements UpdateCallbackInterface
             boolean deinitTrackersResult;
             
             // Destroy the tracking data set:
-            unloadTrackersResult = m_sessionControl.doUnloadTrackersData();
+            unloadTrackersResult = mSessionControl.doUnloadTrackersData();
             
             // Deinitialize the trackers:
-            deinitTrackersResult = m_sessionControl.doDeinitTrackers();
+            deinitTrackersResult = mSessionControl.doDeinitTrackers();
             
             // Deinitialize Vuforia SDK:
             Vuforia.deinit();
@@ -244,16 +257,20 @@ public class SampleApplicationSession implements UpdateCallbackInterface
         // Vuforia-specific resume operation
         Vuforia.onResume();
         
-        if (m_started)
+        if (mStarted)
+        {
             startAR(mCamera);
+        }
     }
     
     
     // Pauses Vuforia and stops the camera
     public void pauseAR() throws SampleApplicationException
     {
-        if (m_started)
+        if (mStarted)
+        {
             stopCamera();
+        }
         
         Vuforia.onPause();
     }
@@ -270,7 +287,7 @@ public class SampleApplicationSession implements UpdateCallbackInterface
     @Override
     public void QCAR_onUpdate(State s)
     {
-        m_sessionControl.onQCARUpdate(s);
+        mSessionControl.onQCARUpdate(s);
     }
     
     
@@ -329,7 +346,7 @@ public class SampleApplicationSession implements UpdateCallbackInterface
             // Prevent the onDestroy() method to overlap with initialization:
             synchronized (mShutdownLock)
             {
-                Vuforia.setInitParameters(m_activity, mVuforiaFlags);
+                Vuforia.setInitParameters(mActivity, mVuforiaFlags);
                 
                 do
                 {
@@ -377,7 +394,7 @@ public class SampleApplicationSession implements UpdateCallbackInterface
                     + "initialization successful");
                 
                 boolean initTrackersResult;
-                initTrackersResult = m_sessionControl.doInitTrackers();
+                initTrackersResult = mSessionControl.doInitTrackers();
                 
                 if (initTrackersResult)
                 {
@@ -392,7 +409,7 @@ public class SampleApplicationSession implements UpdateCallbackInterface
                             SampleApplicationException.LOADING_TRACKERS_FAILURE,
                             logMessage);
                         Log.e(LOGTAG, logMessage);
-                        m_sessionControl.onInitARDone(vuforiaException);
+                        mSessionControl.onInitARDone(vuforiaException);
                     }
                     
                 } else
@@ -400,7 +417,7 @@ public class SampleApplicationSession implements UpdateCallbackInterface
                     vuforiaException = new SampleApplicationException(
                         SampleApplicationException.TRACKERS_INITIALIZATION_FAILURE,
                         "Failed to initialize trackers");
-                    m_sessionControl.onInitARDone(vuforiaException);
+                    mSessionControl.onInitARDone(vuforiaException);
                 }
             } else
             {
@@ -427,7 +444,7 @@ public class SampleApplicationSession implements UpdateCallbackInterface
                 vuforiaException = new SampleApplicationException(
                     SampleApplicationException.INITIALIZATION_FAILURE,
                     logMessage);
-                m_sessionControl.onInitARDone(vuforiaException);
+                mSessionControl.onInitARDone(vuforiaException);
             }
         }
     }
@@ -441,7 +458,7 @@ public class SampleApplicationSession implements UpdateCallbackInterface
             synchronized (mShutdownLock)
             {
                 // Load the tracker data set:
-                return m_sessionControl.doLoadTrackersData();
+                return mSessionControl.doLoadTrackersData();
             }
         }
         
@@ -473,12 +490,12 @@ public class SampleApplicationSession implements UpdateCallbackInterface
                 
                 Vuforia.registerCallback(SampleApplicationSession.this);
                 
-                m_started = true;
+                mStarted = true;
             }
             
             // Done loading the tracker, update application status, send the
             // exception to check errors
-            m_sessionControl.onInitARDone(vuforiaException);
+            mSessionControl.onInitARDone(vuforiaException);
         }
     }
     
@@ -488,7 +505,7 @@ public class SampleApplicationSession implements UpdateCallbackInterface
     {
         // Query display dimensions:
         DisplayMetrics metrics = new DisplayMetrics();
-        m_activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        mActivity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
         mScreenWidth = metrics.widthPixels;
         mScreenHeight = metrics.heightPixels;
     }
@@ -497,7 +514,7 @@ public class SampleApplicationSession implements UpdateCallbackInterface
     // Stores the orientation depending on the current resources configuration
     private void updateActivityOrientation()
     {
-        Configuration config = m_activity.getResources().getConfiguration();
+        Configuration config = mActivity.getResources().getConfiguration();
         
         switch (config.orientation)
         {
@@ -527,11 +544,15 @@ public class SampleApplicationSession implements UpdateCallbackInterface
     }
     
     
-    private void stopCamera()
+    public void stopCamera()
     {
-        m_sessionControl.doStopTrackers();
-        CameraDevice.getInstance().stop();
-        CameraDevice.getInstance().deinit();
+        if(mCameraRunning)
+        {
+            mSessionControl.doStopTrackers();
+            CameraDevice.getInstance().stop();
+            CameraDevice.getInstance().deinit();
+            mCameraRunning = false;
+        }
     }
     
     
@@ -602,7 +623,7 @@ public class SampleApplicationSession implements UpdateCallbackInterface
     // tracker data loaded
     private boolean isARRunning()
     {
-        return m_started;
+        return mStarted;
     }
     
 }

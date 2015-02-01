@@ -1,7 +1,9 @@
-/*==============================================================================
- Copyright (c) 2012-2013 Qualcomm Connected Experiences, Inc.
- All Rights Reserved.
- ==============================================================================*/
+/*===============================================================================
+Copyright (c) 2012-2014 Qualcomm Connected Experiences, Inc. All Rights Reserved.
+
+Vuforia is a trademark of QUALCOMM Incorporated, registered in the United States
+and other countries. Trademarks of QUALCOMM Incorporated are used with permission.
+===============================================================================*/
 
 package com.qualcomm.vuforia.samples.VuforiaSamples.ui.SampleAppMenu;
 
@@ -30,7 +32,7 @@ import com.qualcomm.vuforia.samples.VuforiaSamples.R;
 // Handles the sample apps menu settings
 public class SampleAppMenu
 {
-    
+
     protected static final String SwipeSettingsInterface = null;
     private GestureListener mGestureListener;
     private GestureDetector mGestureDetector;
@@ -41,26 +43,26 @@ public class SampleAppMenu
     private SampleAppMenuView mParentMenuView;
     private LinearLayout mMovableListView;
     private ArrayList<SampleAppMenuGroup> mSettingsItems = new ArrayList<SampleAppMenuGroup>();
-    
+
     private ArrayList<View> mAdditionalViews;
     private float mInitialAdditionalViewsX[];
     private int mScreenWidth;
     private int mListViewWidth = 0;
-    
+
     // True if dragging and displaying the menu
     boolean mSwipingMenu = false;
-    
+
     // True if menu is showing and docked
     boolean mStartMenuDisplaying = false;
-    
+
     float mGingerbreadMenuClipping = 0;
-    
+
     private static float SETTINGS_MENU_SCREEN_PERCENTAGE = .80f;
     private static float SETTINGS_MENU_SCREEN_MIN_PERCENTAGE_TO_SHOW = .1f;
-    
+
     boolean mIsBelowICS = Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH;
-    
-    
+
+
     // Parameters:
     // menuInterface - Reference to the object which will be handling the
     // processes from the menu entries
@@ -77,37 +79,37 @@ public class SampleAppMenu
         mActivity = activity;
         mMovableView = movableView;
         mAdditionalViews = additionalViewsToHide;
-        
+
         LayoutInflater inflater = LayoutInflater.from(mActivity);
         mParentMenuView = (SampleAppMenuView) inflater.inflate(
             R.layout.sample_app_menu_layer, null, false);
         parentView.addView(mParentMenuView);
-        
+
         mMovableListView = (LinearLayout) mParentMenuView
             .findViewById(R.id.settings_menu);
         mMovableListView.setBackgroundColor(Color.WHITE);
-        
+
         TextView title = (TextView) mMovableListView
             .findViewById(R.id.settings_menu_title);
         title.setText(menuTitle);
-        
+
         mMovableView.setVisibility(View.VISIBLE);
-        
+
         if (mAdditionalViews != null && mAdditionalViews.size() > 0)
         {
             mInitialAdditionalViewsX = new float[mAdditionalViews.size()];
         }
-        
+
         mGestureListener = new GestureListener();
         mGestureDetector = new GestureDetector(mActivity, mGestureListener);
-        
+
         if (!mIsBelowICS)
             mMenuAnimator = new SampleAppMenuAnimator(this);
-        
+
         DisplayMetrics metrics = new DisplayMetrics();
         activity.getWindowManager().getDefaultDisplay().getMetrics(metrics);
         mScreenWidth = metrics.widthPixels;
-        
+
         // Used to set the listView length depending on the glView width
         ViewTreeObserver vto = mMovableView.getViewTreeObserver();
         vto.addOnGlobalLayoutListener(new OnGlobalLayoutListener()
@@ -118,42 +120,42 @@ public class SampleAppMenu
             {
                 int menuWidth = Math.min(mMovableView.getWidth(), mMovableView.getHeight());
                 mListViewWidth = (int) (menuWidth * SETTINGS_MENU_SCREEN_PERCENTAGE);
-                
+
                 RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
                     mListViewWidth, RelativeLayout.LayoutParams.MATCH_PARENT);
-                
+
                 params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
                 params.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
                 mParentMenuView.setLayoutParams(params);
-                
+
                 setMenuDisplaying(false);
                 mGestureListener.setMaxSwipe(mListViewWidth);
-                
+
                 LinearLayout.LayoutParams groupParams = new LinearLayout.LayoutParams(
                     mListViewWidth, LinearLayout.LayoutParams.WRAP_CONTENT);
                 for (SampleAppMenuGroup group : mSettingsItems)
                 {
                     group.getMenuLayout().setLayoutParams(groupParams);
                 }
-                
+
                 mMovableView.getViewTreeObserver()
                     .removeGlobalOnLayoutListener(this);
-                
+
             }
         });
-        
+
     }
-    
-    
+
+
     public boolean processEvent(MotionEvent event)
     {
         boolean result = false;
         result = mGestureDetector.onTouchEvent(event);
-        
+
         if (event.getAction() == MotionEvent.ACTION_UP && !result)
         {
             setSwipingMenu(false);
-            
+
             // Hides the menu if it is not docked when releasing
             if (!isMenuDisplaying()
                 || getViewX(mMovableView) < (mScreenWidth * SETTINGS_MENU_SCREEN_PERCENTAGE))
@@ -168,18 +170,18 @@ public class SampleAppMenu
                 }
             }
         }
-        
+
         return result;
     }
-    
-    
+
+
     private void startViewsAnimation(boolean display)
     {
         float targetX = display ? mGestureListener.getMaxSwipe() : 0;
-        
+
         mMenuAnimator.setStartEndX(getViewX(mMovableView), targetX);
         mMenuAnimator.start();
-        
+
         if (mAdditionalViews != null)
         {
             for (int i = 0; i < mAdditionalViews.size(); i++)
@@ -189,20 +191,20 @@ public class SampleAppMenu
             }
         }
     }
-    
-    
+
+
     public void setSwipingMenu(boolean isSwiping)
     {
         mSwipingMenu = isSwiping;
     }
-    
-    
+
+
     public boolean isMenuDisplaying()
     {
         return mStartMenuDisplaying;
     }
-    
-    
+
+
     public void setMenuDisplaying(boolean isMenuDisplaying)
     {
         // This is used to avoid the ListView to consume the incoming event when
@@ -211,19 +213,19 @@ public class SampleAppMenu
         mParentMenuView.setFocusableInTouchMode(isMenuDisplaying);
         mParentMenuView.setClickable(isMenuDisplaying);
         mParentMenuView.setEnabled(isMenuDisplaying);
-        
+
         mStartMenuDisplaying = isMenuDisplaying;
-        
+
     }
-    
-    
+
+
     public void hide()
     {
         setViewX(mMovableView, 0);
-        
+
         mParentMenuView.setHorizontalClipping(0);
         mParentMenuView.setVisibility(View.GONE);
-        
+
         if (mAdditionalViews != null && !mIsBelowICS)
         {
             for (int i = 0; i < mAdditionalViews.size(); i++)
@@ -231,10 +233,10 @@ public class SampleAppMenu
                 setViewX(mAdditionalViews.get(i), mInitialAdditionalViewsX[i]);
             }
         }
-        
+
     }
-    
-    
+
+
     private void setViewX(View view, float x)
     {
         if (!mIsBelowICS)
@@ -242,8 +244,8 @@ public class SampleAppMenu
         else
             mGingerbreadMenuClipping = x;
     }
-    
-    
+
+
     private float getViewX(View view)
     {
         float x = 0;
@@ -251,11 +253,11 @@ public class SampleAppMenu
             x = view.getX();
         else
             x = mGingerbreadMenuClipping;
-        
+
         return x;
     }
-    
-    
+
+
     public void showMenu()
     {
         if (!mIsBelowICS)
@@ -267,8 +269,8 @@ public class SampleAppMenu
             setMenuDisplaying(true);
         }
     }
-    
-    
+
+
     public void hideMenu()
     {
         if (!mIsBelowICS)
@@ -284,8 +286,8 @@ public class SampleAppMenu
             setMenuDisplaying(false);
         }
     }
-    
-    
+
+
     public SampleAppMenuGroup addGroup(String string, boolean hasTitle)
     {
         SampleAppMenuGroup newGroup = new SampleAppMenuGroup(mMenuInterface,
@@ -293,16 +295,16 @@ public class SampleAppMenu
         mSettingsItems.add(newGroup);
         return mSettingsItems.get(mSettingsItems.size() - 1);
     }
-    
-    
+
+
     public void attachMenu()
     {
-        
+
         for (SampleAppMenuGroup group : mSettingsItems)
         {
             mMovableListView.addView(group.getMenuLayout());
         }
-        
+
         View newView = new View(mActivity);
         newView.setLayoutParams(new LayoutParams(LayoutParams.MATCH_PARENT,
             LayoutParams.MATCH_PARENT));
@@ -310,17 +312,17 @@ public class SampleAppMenu
         mMovableListView.addView(newView);
         hide();
         setMenuDisplaying(false);
-        
+
     }
-    
-    
+
+
     public void setAnimationX(float animtationX)
     {
         mParentMenuView.setVisibility(View.VISIBLE);
         setViewX(mMovableView, animtationX);
-        
+
         mParentMenuView.setHorizontalClipping((int) animtationX);
-        
+
         if (mAdditionalViews != null)
         {
             for (int i = 0; i < mAdditionalViews.size(); i++)
@@ -330,15 +332,15 @@ public class SampleAppMenu
             }
         }
     }
-    
-    
+
+
     public void setDockMenu(boolean isDocked)
     {
         setMenuDisplaying(isDocked);
         if (!isDocked)
             hideMenu();
     }
-    
+
     // Process the gestures to handle the menu
     private class GestureListener extends
         GestureDetector.SimpleOnGestureListener
@@ -347,11 +349,11 @@ public class SampleAppMenu
         int DISTANCE_TRESHOLD = 10;
         // Minimum velocity to display the menu upon fling
         int VELOCITY_TRESHOLD = 2000;
-        
+
         // Maximum x to dock the menu
         float mMaxXSwipe;
-        
-        
+
+
         // Called when dragging
         @Override
         public boolean onScroll(MotionEvent e1, MotionEvent e2,
@@ -361,7 +363,7 @@ public class SampleAppMenu
             {
                 mSwipingMenu = true;
                 mParentMenuView.setVisibility(View.VISIBLE);
-                
+
                 if (mAdditionalViews != null && !mIsBelowICS
                     && !mStartMenuDisplaying)
                 {
@@ -372,17 +374,17 @@ public class SampleAppMenu
                     }
                 }
             }
-            
+
             if (mSwipingMenu && mMovableView != null
                 && (getViewX(mMovableView) - distanceX > 0))
             {
                 float deltaX = Math.min(mMaxXSwipe, getViewX(mMovableView)
                     - distanceX);
-                
+
                 setViewX(mMovableView, deltaX);
-                
+
                 mParentMenuView.setHorizontalClipping((int) deltaX);
-                
+
                 if (mAdditionalViews != null && !mIsBelowICS)
                 {
                     for (int i = 0; i < mAdditionalViews.size(); i++)
@@ -391,9 +393,9 @@ public class SampleAppMenu
                             mInitialAdditionalViewsX[i] + deltaX);
                     }
                 }
-                
+
             }
-            
+
             if (mMaxXSwipe <= getViewX(mMovableView))
             {
                 Handler handler = new Handler();
@@ -404,15 +406,15 @@ public class SampleAppMenu
                     {
                         showMenu();
                     }
-                    
+
                 }, 100L);
-                
+
             }
-            
+
             return false;
         }
-        
-        
+
+
         @Override
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
             float velocityY)
@@ -423,18 +425,18 @@ public class SampleAppMenu
             }
             return false;
         }
-        
-        
+
+
         @Override
         public boolean onSingleTapUp(MotionEvent e)
         {
             boolean consumeTapUp = isMenuDisplaying();
             hideMenu();
-            
+
             return consumeTapUp;
         }
-        
-        
+
+
         @Override
         public boolean onDoubleTap(MotionEvent e)
         {
@@ -451,8 +453,8 @@ public class SampleAppMenu
             }
             return true;
         }
-        
-        
+
+
         // Percentage of the screen to display and maintain the menu
         public void setMaxSwipe(float maxXSwipe)
         {
@@ -463,13 +465,13 @@ public class SampleAppMenu
                 mMenuAnimator.setStartEndX(0.0f, mMaxXSwipe);
             }
         }
-        
-        
+
+
         public float getMaxSwipe()
         {
             return mMaxXSwipe;
         }
-        
+
     }
-    
+
 }

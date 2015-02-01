@@ -1,7 +1,9 @@
-/*==============================================================================
- Copyright (c) 2012-2013 Qualcomm Connected Experiences, Inc.
- All Rights Reserved.
- ==============================================================================*/
+/*===============================================================================
+Copyright (c) 2012-2014 Qualcomm Connected Experiences, Inc. All Rights Reserved.
+
+Vuforia is a trademark of QUALCOMM Incorporated, registered in the United States
+and other countries. Trademarks of QUALCOMM Incorporated are used with permission.
+===============================================================================*/
 
 package com.qualcomm.vuforia.samples.VuforiaSamples.ui.SampleAppMenu;
 
@@ -27,29 +29,29 @@ import com.qualcomm.vuforia.samples.VuforiaSamples.R;
 
 public class SampleAppMenuGroup
 {
-    
+
     Activity mActivity;
     SampleAppMenuInterface mMenuInterface;
     LinearLayout mLayout;
     LayoutParams mLayoutParams;
     LayoutInflater inflater;
     int dividerResource;
-    
+
     float mEntriesTextSize;
     int mEntriesSidesPadding;
     int mEntriesUpDownPadding;
     int mEntriesUpDownRadioPadding;
     Typeface mFont;
-    
+
     int selectorResource;
-    
+
     SampleAppMenu mSampleAppMenu;
     RadioGroup mRadioGroup;
-    
+
     OnClickListener mClickListener;
     OnCheckedChangeListener mOnCheckedListener;
-    
-    
+
+
     public SampleAppMenuGroup(SampleAppMenuInterface menuInterface,
         Activity context, SampleAppMenu parent, boolean hasTitle, String title,
         int width)
@@ -60,16 +62,16 @@ public class SampleAppMenuGroup
         mLayoutParams = new LinearLayout.LayoutParams(
             LinearLayout.LayoutParams.MATCH_PARENT,
             LinearLayout.LayoutParams.WRAP_CONTENT);
-        
+
         inflater = LayoutInflater.from(mActivity);
         mLayout = (LinearLayout) inflater.inflate(
             R.layout.sample_app_menu_group, null, false);
         mLayout.setLayoutParams(new LinearLayout.LayoutParams(width,
             LinearLayout.LayoutParams.WRAP_CONTENT));
-        
+
         mEntriesTextSize = mActivity.getResources().getDimension(
             R.dimen.menu_entries_text);
-        
+
         mEntriesSidesPadding = (int) mActivity.getResources().getDimension(
             R.dimen.menu_entries_sides_padding);
         mEntriesUpDownPadding = (int) mActivity.getResources().getDimension(
@@ -77,18 +79,18 @@ public class SampleAppMenuGroup
         mEntriesUpDownRadioPadding = (int) mActivity.getResources()
             .getDimension(R.dimen.menu_entries_top_down_radio_padding);
         dividerResource = R.layout.sample_app_menu_group_divider;
-        
+
         selectorResource = android.R.drawable.list_selector_background;
-        
+
         mFont = Typeface.create("sans-serif", Typeface.NORMAL);
-        
+
         TextView titleView = (TextView) mLayout
             .findViewById(R.id.menu_group_title);
         titleView.setText(title);
         titleView.setTextSize(mActivity.getResources().getDimension(
             R.dimen.menu_entries_title));
         titleView.setClickable(false);
-        
+
         if (!hasTitle)
         {
             mLayout.removeView(titleView);
@@ -96,10 +98,10 @@ public class SampleAppMenuGroup
                 .findViewById(R.id.menu_group_title_divider);
             mLayout.removeView(dividerView);
         }
-        
+
         mClickListener = new OnClickListener()
         {
-            
+
             @Override
             public void onClick(View v)
             {
@@ -107,12 +109,12 @@ public class SampleAppMenuGroup
                 mMenuInterface.menuProcess(command);
                 mSampleAppMenu.hideMenu();
             }
-            
+
         };
-        
+
         mOnCheckedListener = new OnCheckedChangeListener()
         {
-            
+
             @Override
             public void onCheckedChanged(CompoundButton switchView,
                 boolean isChecked)
@@ -125,29 +127,29 @@ public class SampleAppMenuGroup
                     switchView.setChecked(!isChecked);
                 } else
                     mSampleAppMenu.hideMenu();
-                
+
             }
-            
+
         };
-        
+
     }
-    
-    
+
+
     @SuppressWarnings("deprecation")
     public View addTextItem(String text, int command)
     {
-        
+
         Drawable selectorDrawable = mActivity.getResources().getDrawable(
             selectorResource);
-        
+
         TextView newTextView = new TextView(mActivity);
         newTextView.setText(text);
-        
+
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.JELLY_BEAN)
             newTextView.setBackground(selectorDrawable);
         else
             newTextView.setBackgroundDrawable(selectorDrawable);
-        
+
         newTextView.setTypeface(mFont);
         newTextView.setTextSize(mEntriesTextSize);
         newTextView.setTag(command);
@@ -157,30 +159,30 @@ public class SampleAppMenuGroup
         newTextView.setClickable(true);
         newTextView.setOnClickListener(mClickListener);
         mLayout.addView(newTextView, mLayoutParams);
-        
+
         View divider = inflater.inflate(dividerResource, null);
         mLayout.addView(divider, mLayoutParams);
-        
+
         return newTextView;
-        
+
     }
-    
-    
+
+
     @SuppressWarnings("deprecation")
     public View addSelectionItem(String text, int command, boolean on)
     {
-        
+
         Drawable selectorDrawable = mActivity.getResources().getDrawable(
             selectorResource);
         View returnView;
-        
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1)
         {
             Switch newSwitchView = new Switch(mActivity);
             newSwitchView.setText(text);
-            
+
             newSwitchView.setBackground(selectorDrawable);
-            
+
             newSwitchView.setTypeface(mFont);
             newSwitchView.setTextSize(mEntriesTextSize);
             newSwitchView.setTag(command);
@@ -195,14 +197,14 @@ public class SampleAppMenuGroup
         } else
         {
             CheckBox newView = new CheckBox(mActivity);
-            
+
             int leftPadding = newView.getPaddingLeft();
-            
+
             if (Build.VERSION.SDK_INT == Build.VERSION_CODES.JELLY_BEAN)
                 newView.setBackground(selectorDrawable);
             else
                 newView.setBackgroundDrawable(selectorDrawable);
-            
+
             newView.setText(text);
             newView.setTypeface(mFont);
             newView.setTextSize(mEntriesTextSize);
@@ -216,19 +218,19 @@ public class SampleAppMenuGroup
             mLayout.addView(newView, mLayoutParams);
             returnView = newView;
         }
-        
+
         View divider = inflater.inflate(dividerResource, null);
         mLayout.addView(divider, mLayoutParams);
-        
+
         return returnView;
     }
-    
-    
+
+
     @SuppressWarnings("deprecation")
     public View addRadioItem(String text, int command, boolean isSelected)
     {
         boolean firstRadioEntry = false;
-        
+
         if (mRadioGroup == null)
         {
             firstRadioEntry = true;
@@ -236,19 +238,19 @@ public class SampleAppMenuGroup
             mRadioGroup.setVisibility(View.VISIBLE);
             mLayout.addView(mRadioGroup, mLayoutParams);
         }
-        
+
         Drawable selectorDrawable = mActivity.getResources().getDrawable(
             selectorResource);
-        
+
         RadioButton newRadioButton = (RadioButton) inflater.inflate(
             R.layout.sample_app_menu_group_radio_button, null, false);
         newRadioButton.setText(text);
-        
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
             newRadioButton.setBackground(selectorDrawable);
         else
             newRadioButton.setBackgroundDrawable(selectorDrawable);
-        
+
         newRadioButton.setTypeface(mFont);
         newRadioButton.setTextSize(mEntriesTextSize);
         newRadioButton.setPadding(mEntriesSidesPadding,
@@ -259,22 +261,22 @@ public class SampleAppMenuGroup
         newRadioButton.setVisibility(View.VISIBLE);
         newRadioButton.setOnClickListener(mClickListener);
         mRadioGroup.addView(newRadioButton, mLayoutParams);
-        
+
         View divider = inflater.inflate(dividerResource, null);
         mRadioGroup.addView(divider, mLayoutParams);
-        
+
         if (firstRadioEntry || isSelected)
         {
             mRadioGroup.check(newRadioButton.getId());
         }
-        
+
         return mRadioGroup;
     }
-    
-    
+
+
     public LinearLayout getMenuLayout()
     {
         return mLayout;
     }
-    
+
 }

@@ -1,7 +1,9 @@
-/*==============================================================================
- Copyright (c) 2012-2013 Qualcomm Connected Experiences, Inc.
- All Rights Reserved.
- ==============================================================================*/
+/*===============================================================================
+Copyright (c) 2012-2014 Qualcomm Connected Experiences, Inc. All Rights Reserved.
+
+Vuforia is a trademark of QUALCOMM Incorporated, registered in the United States 
+and other countries. Trademarks of QUALCOMM Incorporated are used with permission.
+===============================================================================*/
 
 package com.qualcomm.vuforia.samples.VuforiaSamples.app.CylinderTargets;
 
@@ -31,6 +33,7 @@ import com.qualcomm.vuforia.CameraDevice;
 import com.qualcomm.vuforia.DataSet;
 import com.qualcomm.vuforia.ImageTracker;
 import com.qualcomm.vuforia.State;
+import com.qualcomm.vuforia.STORAGE_TYPE;
 import com.qualcomm.vuforia.Trackable;
 import com.qualcomm.vuforia.Tracker;
 import com.qualcomm.vuforia.TrackerManager;
@@ -324,7 +327,7 @@ public class CylinderTargets extends Activity implements
             return false;
         
         if (!dataSet.load("CylinderTargets/sodacan.xml",
-            DataSet.STORAGE_TYPE.STORAGE_APPRESOURCE))
+            STORAGE_TYPE.STORAGE_APPRESOURCE))
             return false;
         
         if (!imageTracker.activateDataSet(dataSet))
@@ -653,9 +656,8 @@ public class CylinderTargets extends Activity implements
                     }
                 }
                 
-                doStopTrackers();
-                CameraDevice.getInstance().stop();
-                CameraDevice.getInstance().deinit();
+                vuforiaAppSession.stopCamera();
+                
                 try
                 {
                     vuforiaAppSession

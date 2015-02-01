@@ -1,7 +1,9 @@
-/*==============================================================================
- Copyright (c) 2012-2013 Qualcomm Connected Experiences, Inc.
- All Rights Reserved.
- ==============================================================================*/
+/*===============================================================================
+Copyright (c) 2012-2014 Qualcomm Connected Experiences, Inc. All Rights Reserved.
+
+Vuforia is a trademark of QUALCOMM Incorporated, registered in the United States 
+and other countries. Trademarks of QUALCOMM Incorporated are used with permission.
+===============================================================================*/
 
 package com.qualcomm.vuforia.samples.VuforiaSamples.app.CloudRecognition;
 
@@ -46,10 +48,12 @@ public class CloudRecoRenderer implements GLSurfaceView.Renderer
     
     private Teapot mTeapot;
     
+    private CloudReco mActivity;
     
-    public CloudRecoRenderer(SampleApplicationSession session)
+    public CloudRecoRenderer(SampleApplicationSession session, CloudReco activity)
     {
         vuforiaAppSession = session;
+        mActivity = activity;
     }
     
     
@@ -152,10 +156,16 @@ public class CloudRecoRenderer implements GLSurfaceView.Renderer
             {
                 return;
             }
+
+            mActivity.stopFinderIfStarted();
             
             // Renders the Augmentation View with the 3D Book data Panel
             renderAugmentation(trackableResult);
             
+        }
+        else
+        {
+            mActivity.startFinderIfStopped();
         }
         
         GLES20.glDisable(GLES20.GL_DEPTH_TEST);

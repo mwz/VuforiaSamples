@@ -1,7 +1,9 @@
-/*==============================================================================
- Copyright (c) 2012-2013 Qualcomm Connected Experiences, Inc.
- All Rights Reserved.
- ==============================================================================*/
+/*===============================================================================
+Copyright (c) 2012-2014 Qualcomm Connected Experiences, Inc. All Rights Reserved.
+
+Vuforia is a trademark of QUALCOMM Incorporated, registered in the United States 
+and other countries. Trademarks of QUALCOMM Incorporated are used with permission.
+===============================================================================*/
 
 package com.qualcomm.vuforia.samples.VuforiaSamples.app.CloudRecognition;
 
@@ -85,6 +87,8 @@ public class CloudReco extends Activity implements SampleApplicationControl,
     private boolean mFlash = false;
     private boolean mContAutofocus = false;
     private boolean mExtendedTracking = false;
+    boolean mFinderStarted = false;
+    boolean mStopFinderIfStarted = false;
     
     private View mFlashOptionView;
     
@@ -341,7 +345,7 @@ public class CloudReco extends Activity implements SampleApplicationControl,
         mGlView.init(translucent, depthSize, stencilSize);
         
         // Setups the Renderer of the GLView
-        mRenderer = new CloudRecoRenderer(vuforiaAppSession);
+        mRenderer = new CloudRecoRenderer(vuforiaAppSession, this);
         mRenderer.setTextures(mTextures);
         mGlView.setRenderer(mRenderer);
         
@@ -448,6 +452,45 @@ public class CloudReco extends Activity implements SampleApplicationControl,
                 mErrorDialog.show();
             }
         });
+    }
+    
+    
+    public void startFinderIfStopped()
+    {
+        if(!mFinderStarted)
+        {
+            mFinderStarted = true;
+            
+            // Get the image tracker:
+            TrackerManager trackerManager = TrackerManager.getInstance();
+            ImageTracker imageTracker = (ImageTracker) trackerManager
+                .getTracker(ImageTracker.getClassType());
+            
+            // Initialize target finder:
+            TargetFinder targetFinder = imageTracker.getTargetFinder();
+            
+            targetFinder.clearTrackables();
+            targetFinder.startRecognition();
+        }
+    }
+    
+    
+    public void stopFinderIfStarted()
+    {
+        if(mFinderStarted)
+        {
+            mFinderStarted = false;
+            
+            // Get the image tracker:
+            TrackerManager trackerManager = TrackerManager.getInstance();
+            ImageTracker imageTracker = (ImageTracker) trackerManager
+                .getTracker(ImageTracker.getClassType());
+            
+            // Initialize target finder:
+            TargetFinder targetFinder = imageTracker.getTargetFinder();
+            
+            targetFinder.stop();
+        }
     }
     
     
@@ -613,7 +656,7 @@ public class CloudReco extends Activity implements SampleApplicationControl,
                         trackable.startExtendedTracking();
                 }
             }
-        }
+        } 
     }
     
     
@@ -657,6 +700,7 @@ public class CloudReco extends Activity implements SampleApplicationControl,
         // Start cloud based recognition if we are in scanning mode:
         TargetFinder targetFinder = imageTracker.getTargetFinder();
         targetFinder.startRecognition();
+        mFinderStarted = true;
         
         return result;
     }
@@ -679,6 +723,7 @@ public class CloudReco extends Activity implements SampleApplicationControl,
             // Stop cloud based recognition:
             TargetFinder targetFinder = imageTracker.getTargetFinder();
             targetFinder.stop();
+            mFinderStarted = false;
             
             // Clears the trackables
             targetFinder.clearTrackables();
@@ -823,7 +868,9 @@ public class CloudReco extends Activity implements SampleApplicationControl,
                 TargetFinder targetFinder = imageTracker.getTargetFinder();
                 
                 if (targetFinder.getNumImageTargets() == 0)
+                {
                     result = true;
+                }
                 
                 for (int tIdx = 0; tIdx < targetFinder.getNumImageTargets(); tIdx++)
                 {
@@ -876,9 +923,8 @@ public class CloudReco extends Activity implements SampleApplicationControl,
                     }
                 }
                 
-                doStopTrackers();
-                CameraDevice.getInstance().stop();
-                CameraDevice.getInstance().deinit();
+                vuforiaAppSession.stopCamera();
+                
                 try
                 {
                     vuforiaAppSession

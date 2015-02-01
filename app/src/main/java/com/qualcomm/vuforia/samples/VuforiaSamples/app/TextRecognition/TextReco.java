@@ -1,7 +1,9 @@
-/*==============================================================================
- Copyright (c) 2012-2013 Qualcomm Connected Experiences, Inc.
- All Rights Reserved.
- ==============================================================================*/
+/*===============================================================================
+Copyright (c) 2012-2014 Qualcomm Connected Experiences, Inc. All Rights Reserved.
+
+Vuforia is a trademark of QUALCOMM Incorporated, registered in the United States 
+and other countries. Trademarks of QUALCOMM Incorporated are used with permission.
+===============================================================================*/
 
 package com.qualcomm.vuforia.samples.VuforiaSamples.app.TextRecognition;
 
@@ -38,6 +40,7 @@ import com.qualcomm.vuforia.CameraDevice;
 import com.qualcomm.vuforia.RectangleInt;
 import com.qualcomm.vuforia.Renderer;
 import com.qualcomm.vuforia.State;
+import com.qualcomm.vuforia.STORAGE_TYPE;
 import com.qualcomm.vuforia.TextTracker;
 import com.qualcomm.vuforia.Tracker;
 import com.qualcomm.vuforia.TrackerManager;
@@ -196,7 +199,9 @@ public class TextReco extends Activity implements SampleApplicationControl,
         super.onConfigurationChanged(config);
         
         vuforiaAppSession.onConfigurationChanged();
-        configureVideoBackgroundROI();
+        
+        if(mIsVuforiaStarted)
+            configureVideoBackgroundROI();
     }
     
     
@@ -676,7 +681,7 @@ public class TextReco extends Activity implements SampleApplicationControl,
         WordList wl = tt.getWordList();
         
         return wl.loadWordList("TextReco/Vuforia-English-word.vwl",
-            WordList.STORAGE_TYPE.STORAGE_APPRESOURCE);
+            STORAGE_TYPE.STORAGE_APPRESOURCE);
     }
     
     

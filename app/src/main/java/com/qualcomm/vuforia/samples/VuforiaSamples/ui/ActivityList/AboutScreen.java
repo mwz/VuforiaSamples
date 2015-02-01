@@ -1,7 +1,9 @@
-/*==============================================================================
- Copyright (c) 2012-2013 Qualcomm Connected Experiences, Inc.
- All Rights Reserved.
- ==============================================================================*/
+/*===============================================================================
+Copyright (c) 2012-2014 Qualcomm Connected Experiences, Inc. All Rights Reserved.
+
+Vuforia is a trademark of QUALCOMM Incorporated, registered in the United States
+and other countries. Trademarks of QUALCOMM Incorporated are used with permission.
+===============================================================================*/
 
 package com.qualcomm.vuforia.samples.VuforiaSamples.ui.ActivityList;
 
@@ -28,33 +30,33 @@ import com.qualcomm.vuforia.samples.VuforiaSamples.R;
 public class AboutScreen extends Activity implements OnClickListener
 {
     private static final String LOGTAG = "AboutScreen";
-    
+
     private WebView mAboutWebText;
     private Button mStartButton;
     private TextView mAboutTextTitle;
     private String mClassToLaunch;
     private String mClassToLaunchPackage;
-    
-    
+
+
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
-        
+
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
             WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        
+
         setContentView(R.layout.about_screen);
-        
+
         Bundle extras = getIntent().getExtras();
         String webText = extras.getString("ABOUT_TEXT");
         mClassToLaunchPackage = getPackageName();
         mClassToLaunch = mClassToLaunchPackage + "."
             + extras.getString("ACTIVITY_TO_LAUNCH");
-        
+
         mAboutWebText = (WebView) findViewById(R.id.about_html_text);
-        
+
         String aboutText = "";
         try
         {
@@ -62,7 +64,7 @@ public class AboutScreen extends Activity implements OnClickListener
             BufferedReader reader = new BufferedReader(
                 new InputStreamReader(is));
             String line;
-            
+
             while ((line = reader.readLine()) != null)
             {
                 aboutText += line;
@@ -71,18 +73,18 @@ public class AboutScreen extends Activity implements OnClickListener
         {
             Log.e(LOGTAG, "About html loading failed");
         }
-        
+
         mAboutWebText.loadData(aboutText, "text/html", "UTF-8");
-        
+
         mStartButton = (Button) findViewById(R.id.button_start);
         mStartButton.setOnClickListener(this);
-        
+
         mAboutTextTitle = (TextView) findViewById(R.id.about_text_title);
         mAboutTextTitle.setText(extras.getString("ABOUT_TEXT_TITLE"));
-        
+
     }
-    
-    
+
+
     // Starts the chosen activity
     private void startARActivity()
     {
@@ -90,8 +92,8 @@ public class AboutScreen extends Activity implements OnClickListener
         i.setClassName(mClassToLaunchPackage, mClassToLaunch);
         startActivity(i);
     }
-    
-    
+
+
     @Override
     public void onClick(View v)
     {
